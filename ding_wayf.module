@@ -82,18 +82,15 @@ function ding_wayf_redirect_login() {
         }
       }
 
-      print_r($creds);
-
       // XXXX HACK HACK DEBUG DEBUG DEBUG DEBUG  HACK HACK XXXX
       $creds['name'] = '3207795622';
       // XXXX HACK HACK DEBUG DEBUG DEBUG DEBUG  HACK HACK XXXX
 
-      // TODO: Login the user to the library system.
+      // Login into the drupal site, using ding_library_user abstraction layer.
       ding_wayf_login($creds);
 
-      echo "¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤ GOTO GOTO GOTO ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤</br></br>";
-
-      print_r($user);
+      // Send the user to her/his user page.
+      drupal_goto('user/' . $user->uid . '/status');
       return;
     }
     else {
@@ -103,6 +100,7 @@ function ding_wayf_redirect_login() {
 
   // Send the user to her/his user page.
   drupal_goto('user/' . $user->uid . '/status');
+  return;
 }
 
 
@@ -206,6 +204,4 @@ function ding_wayf_user($op, &$edit, &$account, $category = NULL) {
   if ($op == 'logout') {
     ding_wayf_logout();
   }
-
-  //print_r($_SESSION);
 }
