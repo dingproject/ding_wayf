@@ -1,6 +1,15 @@
 <?php
 
 /**
+ * @file
+ *
+ *
+ * This authentication module is based on idea's from the simpleSAMLAuth module,
+ * which can be found at http://code.google.com/p/drupalsimplesaml/.
+ *
+ */
+
+/**
  * Implementation of hook_perm().
  */
 function ding_wayf_perm() {
@@ -38,21 +47,52 @@ function ding_wayf_menu() {
 }
 
 function ding_wayf_redirect_login() {
-//  global $user;
-//  global $as;
-//  global $saml_attributes;
-//
-//  if ($user->uid == 0 || $user->uid == 1) {
-//    if ($user->uid == 0) {
-//      /* Require the user to be authentcated. */
-//      $as->requireAuth();
-//    } else {
-//      $output .= 'I am drupal, here me roar';
-//    }
-//  } else {
-//    drupal_goto('/user/' . $user->uid);
-//  }
-//
-//  return $output;
-  return 'Not ready yet';
+  global $user;
+
+  // Load configuration, if not defined, set default values.
+  $config = variable_get('ding_wayf', array());
+  if (empty($config)) {
+    $config = array(
+      'installdir' => '/var/simplesamlphp',
+      'sp' => 'default-sp',
+      'data_field' => 'schacPersonalUniqueID',
+      'data_field_id' => 'CPR',
+      'https' => TRUE,
+    );
+  }
+
+  // Load simple saml php.
+  require_once($config['installdir'] . '/lib/_autoload.php');
+
+  // TODO: Test for simple saml php version
+
+  // Check if user is already logged in, if not continue with wayf.
+  if ($user->uid == 0) {
+    // Get saml connection.
+    $saml = ding_wayf_get_saml_connection($config['sp']);
+
+    // User is not logged into drupal, check wayf
+    if ($saml->isAuthenticated()) {
+      // Get CPR number to log into Ding! provider.
+      $saml_attributes = $saml->getAttributes();
+      $creds['name'] = ding_wayf_get_credentials($saml_attributes[$config['data_field']], $config['data_field_id']);
+      print_r($creds);
+    }
+    else {
+      $saml->requireAuth();
+    }
+  }
+  else {
+    // Send the user to her/his user page.
+    drupal_goto('/user/' . $user->uid);
+  }
+  return;
+}
+
+function ding_wayf_get_credentials($data, $field) {
+  return substr($data[0], strpos($data[0], $field) + strlen($field) + 1);
+}
+
+function ding_wayf_get_saml_connection($sp) {
+  return new SimpleSAML_Auth_Simple($sp);
 }
