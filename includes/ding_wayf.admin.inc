@@ -23,31 +23,33 @@ function ding_wayf_admin_settings_form() {
     '#required' => TRUE,
   );
 
-  $form['ding_wayf']['data_field'] = array(
+  $form['ding_wayf']['attribute'] = array(
     '#type' => 'textfield',
     '#title' => t('Which attribute from simpleSAMLphp should be used as to extract credentials'),
-    '#default_value' => isset($default['data_field']) ? $default['data_field'] : 'schacPersonalUniqueID',
+    '#default_value' => isset($default['attribute']) ? $default['attribute'] : 'schacPersonalUniqueID',
     '#description' => t('The name of the information string that contains the credentials.'),
     '#required' => TRUE,
   );
 
-  $form['ding_wayf']['data_field_id'] = array(
+  $form['ding_wayf']['attribute_field'] = array(
     '#type' => 'textfield',
     '#title' => t('Which string should be extracted'),
-    '#default_value' => isset($default['data_field_id']) ? $default['data_field_id'] : 'CPR',
+    '#default_value' => isset($default['attribute_field']) ? $default['attribute_field'] : 'CPR',
     '#description' => t('Default the CPR number will be extracted (urn:mace:terena.org:schac:uniqueID:dk:CPR:0708741234).'),
     '#required' => TRUE,
   );
-  $form['ding_wayf']['https'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Force https'),
-    '#default_value' => isset($default['https']) ? $default['https'] : TRUE,
-    '#description' => t('Should be enabled on production sites.'),
+
+  $form['ding_wayf']['default'] = array(
+    '#type' => 'password',
+    '#title' => t('Default password'),
+    '#description' => t('Default password is used together with e.i. the extracted CPR number to log into the library system.'),
   );
 
   return system_settings_form($form);
 }
 
 function ding_wayf_admin_settings_form_validate($form, $form_state) {
-  // TODO: Check that simple saml php is found
+  // TODO: Check that simple saml php is found.
+
+  // TODO: Don't update password, if empty.
 }

@@ -52,13 +52,8 @@ function ding_wayf_redirect_login() {
   // Load configuration, if not defined, set default values.
   $config = variable_get('ding_wayf', array());
   if (empty($config)) {
-    $config = array(
-      'installdir' => '/var/simplesamlphp',
-      'sp' => 'default-sp',
-      'data_field' => 'schacPersonalUniqueID',
-      'data_field_id' => 'CPR',
-      'https' => TRUE,
-    );
+    drupal_set_message(t('The WAYF login module is not configured yet, plase contact the site administrator.'), 'error', FALSE);
+    drupal_goto('<front>');
   }
 
   // Load simple saml php.
@@ -73,20 +68,130 @@ function ding_wayf_redirect_login() {
 
     // User is not logged into drupal, check wayf
     if ($saml->isAuthenticated()) {
-      // Get CPR number to log into Ding! provider.
+      // Get credentials to log into Ding! provider.
       $saml_attributes = $saml->getAttributes();
-      $creds['name'] = ding_wayf_get_credentials($saml_attributes[$config['data_field']], $config['data_field_id']);
+      if (isset($saml_attributes)) {
+        if (isset($saml_attributes[$config['attribute']]) && !empty($saml_attributes[$config['attribute']])) {
+          $auth_name = ding_wayf_get_credentials($saml_attributes[$config['attribute']], $config['attribute_field']);
+          if ($auth_name) {
+            $creds = array(
+              'name' => ding_wayf_get_credentials($saml_attributes[$config['attribute']], $config['attribute_field']),
+              'pass' => $config['default'],
+            );
+          }
+        }
+      }
+
       print_r($creds);
+
+      // XXXX HACK HACK DEBUG DEBUG DEBUG DEBUG  HACK HACK XXXX
+      $creds['name'] = '3207795622';
+      // XXXX HACK HACK DEBUG DEBUG DEBUG DEBUG  HACK HACK XXXX
+
+      // TODO: Login the user to the library system.
+      ding_wayf_login($creds);
+
+      echo "¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤ GOTO GOTO GOTO ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤</br></br>";
+
+      print_r($user);
+      return;
     }
     else {
       $saml->requireAuth();
     }
   }
-  else {
-    // Send the user to her/his user page.
-    drupal_goto('/user/' . $user->uid);
+
+  // Send the user to her/his user page.
+  drupal_goto('user/' . $user->uid . '/status');
+}
+
+
+
+/**
+ * Login a wayf user, as thay where logged in by the library system.
+ */
+function ding_wayf_login($creds) {
+  global $user;
+
+  $auth_res = ding_provider_invoke('user', 'authenticate', $creds['name'], $creds['pass']);
+
+  if (!is_array($auth_res) || !isset($auth_res['result'])) {
+    watchdog('ding_wayf', 'Provider returned invalid result: @res', array('@res' => print_r($auth_res, TRUE)), WATCHDOG_DEBUG);
+    ding_wayf_logout();
   }
-  return;
+
+  if ($auth_res['result']) {
+    if (isset($auth_res['authname']) && !empty($auth_res['authname'])) {
+      // If provider supplied an authname, use it.
+      $auth_name = $auth_res['authname'];
+    }
+    else {
+      // Else use a standard authname.
+      $auth_name = ding_library_user_default_authname('test hack test');
+    }
+    // This sets the proper global $user.
+    user_external_login_register($auth_name, 'ding_library_user');
+
+    // Let authenticate module provide some properties for the $user
+    // object. Thus they can set properties that gets used in
+    // hook_user('login').
+    if (isset($auth_res['user'])) {
+      foreach ($auth_res['user'] as $key => $value) {
+        $user->$key = $value;
+      }
+    }
+
+    // Finalize login.
+    user_authenticate_finalize($creds);
+
+    // user_authenticate_finalize above just regenerated the session, so we've
+    // waited until now to stuff things in it.
+    if (isset($auth_res['creds'])) {
+      $_SESSION['ding_library_user_creds'][$user->uid] = $auth_res['creds'];
+    }
+    if (ding_provider_supports('user', 'authenticate finalize')) {
+      ding_provider_invoke('user', 'authenticate finalize', $user);
+    }
+  }
+  else {
+    if (isset($auth_res['messages'])) {
+      foreach ($auth_res['messages'] as $message) {
+        if (is_array($message)) {
+          list($message, $type) = $message;
+        } else {
+          $type = 'warning';
+        }
+        drupal_set_message($message, $type);
+      }
+    }
+  }
+}
+
+function ding_wayf_logout() {
+  $config = variable_get('ding_wayf', array());
+  if (empty($config)) {
+    // No configuration found, so user can't be logged in with wayf.
+    return;
+  }
+
+  // Load simple saml php.
+  require_once($config['installdir'] . '/lib/_autoload.php');
+
+  // Get saml connection.
+  $saml = ding_wayf_get_saml_connection($config['sp']);
+
+  // User is not logged into drupal, check wayf
+  if ($saml->isAuthenticated()) {
+    $config = SimpleSAML_Configuration::getInstance();
+    $msg = 'with_slo';
+
+    try {
+      $slo = $config->getString('SingleLogoutService');
+    } catch (Exception $e) {
+      $msg = "no_slo";
+    }
+    $saml->logout('/?msg=' . $msg);
+  }
 }
 
 function ding_wayf_get_credentials($data, $field) {
@@ -95,4 +200,12 @@ function ding_wayf_get_credentials($data, $field) {
 
 function ding_wayf_get_saml_connection($sp) {
   return new SimpleSAML_Auth_Simple($sp);
+}
+
+function ding_wayf_user($op, &$edit, &$account, $category = NULL) {
+  if ($op == 'logout') {
+    ding_wayf_logout();
+  }
+
+  //print_r($_SESSION);
 }
