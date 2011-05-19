@@ -3,7 +3,6 @@
 /**
  * @file
  *
- *
  * This authentication module is based on idea's from the simpleSAMLAuth module,
  * which can be found at http://code.google.com/p/drupalsimplesaml/.
  *
@@ -61,8 +60,8 @@ function ding_wayf_redirect_login() {
   global $user;
 
   // Load configuration
-  $config = variable_get('ding_wayf', array());
-  if (empty($config)) {
+  $config = variable_get('ding_wayf', NULL);
+  if (!$config) {
     // The configuration have not be create yet, so send user to the front page
     // with an error message.
     drupal_set_message(t('The WAYF login module is not configured yet, plase contact the site administrator.'), 'error', FALSE);
@@ -103,7 +102,7 @@ function ding_wayf_redirect_login() {
       ding_wayf_login($creds);
 
       // Send the user to her/his user page.
-      drupal_goto('user/' . $user->uid . '/status');
+      ding_wayf_redirect_user($config['redirect']);
       return;
     }
     else {
@@ -113,11 +112,9 @@ function ding_wayf_redirect_login() {
   }
 
   // Send the user to her/his user page.
-  drupal_goto('user/' . $user->uid . '/status');
+  ding_wayf_redirect_user($config['redirect']);
   return;
 }
-
-
 
 /**
  * Login a wayf user, as thay where logged in by the library system.
@@ -183,6 +180,12 @@ function ding_wayf_login($creds) {
     // drupal site.
     ding_wayf_logout();
   }
+}
+
+function ding_wayf_redirect_user($url) {
+  global $user;
+  $url = strtr($url, '%uid', $user->uid);
+  drupal_goto($url);
 }
 
 /**
@@ -260,7 +263,10 @@ function ding_wayf_block($op = 'list', $delta = 0, $edit = array()) {
       global $user;
       // Only show login link for anon. users.
       if ($user->uid == 0) {
-        $block['content'] = l(t('WAYF login'), 'wayf');
+        $config = variable_get('ding_wayf', array());
+        if ($config) {
+          $block['content'] = l(t($config['link_text']), 'wayf');
+        }
       }
       break;
   }
