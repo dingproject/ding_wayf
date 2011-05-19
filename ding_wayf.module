@@ -205,3 +205,22 @@ function ding_wayf_user($op, &$edit, &$account, $category = NULL) {
     ding_wayf_logout();
   }
 }
+
+function ding_wayf_block($op = 'list', $delta = 0, $edit = array()) {
+  switch ($op) {
+    case 'list':
+      $block[0] = array(
+        'info' => 'WAYF login block',
+      );
+      break;
+
+    case 'view':
+      global $user;
+      if ($user->uid == 0) {
+        $block['content'] = l(t('WAYF login'), 'wayf');
+      }
+      break;
+  }
+
+  return $block;
+}
