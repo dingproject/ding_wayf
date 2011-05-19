@@ -39,6 +39,22 @@ function ding_wayf_admin_settings_form() {
     '#required' => TRUE,
   );
 
+  $form['ding_wayf']['linkt_text'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Login link text'),
+    '#default_value' => isset($default['link_text']) ? $default['link text'] : 'WAYF login',
+    '#description' => t('The text string that will be used to generate WAYF login link.'),
+    '#required' => TRUE,
+  );
+
+  $form['ding_wayf']['redirect'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Redirect fallback URL'),
+    '#default_value' => isset($default['redirect']) ? $default['redirect'] : '/user/%uid/status',
+    '#description' => t('Redirect to this URL after login, if before login destination is lost. The token %uid is avaliable'),
+    '#required' => TRUE,
+  );
+
   $form['ding_wayf']['default'] = array(
     '#type' => 'password',
     '#title' => t('Default password'),
