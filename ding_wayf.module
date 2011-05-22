@@ -126,9 +126,11 @@ function ding_wayf_login($creds) {
   $auth_res = ding_provider_invoke('user', 'authenticate', $creds['name'], $creds['pass']);
 
   // Test that the response was valided.
-  if (!is_array($auth_res) || !isset($auth_res['result'])) {
+  if (!is_array($auth_res) || !isset($auth_res['result']) || empty($auth_res['result'])) {
+    drupal_set_message(t('The connection to the library system was lost and you have been logged out.'), 'warning');
     watchdog('ding_wayf', 'Provider returned invalid result: @res', array('@res' => print_r($auth_res, TRUE)), WATCHDOG_DEBUG);
     ding_wayf_logout();
+    return;
   }
 
   if ($auth_res['result']) {
@@ -184,7 +186,7 @@ function ding_wayf_login($creds) {
 
 function ding_wayf_redirect_user($url) {
   global $user;
-  $url = strtr($url, '%uid', $user->uid);
+  $url = str_replace('%uid', $user->uid, $url);
   drupal_goto($url);
 }
 

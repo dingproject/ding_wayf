@@ -50,7 +50,7 @@ function ding_wayf_admin_settings_form() {
   $form['ding_wayf']['redirect'] = array(
     '#type' => 'textfield',
     '#title' => t('Redirect fallback URL'),
-    '#default_value' => isset($default['redirect']) ? $default['redirect'] : '/user/%uid/status',
+    '#default_value' => isset($default['redirect']) ? $default['redirect'] : 'user/%uid/status',
     '#description' => t('Redirect to this URL after login, if before login destination is lost. The token %uid is avaliable'),
     '#required' => TRUE,
   );
