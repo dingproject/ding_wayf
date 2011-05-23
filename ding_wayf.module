@@ -94,10 +94,6 @@ function ding_wayf_redirect_login() {
         }
       }
 
-      // XXXX HACK HACK DEBUG DEBUG DEBUG DEBUG  HACK HACK XXXX
-      $creds['name'] = '3207795622';
-      // XXXX HACK HACK DEBUG DEBUG DEBUG DEBUG  HACK HACK XXXX
-
       // Login into the drupal site.
       ding_wayf_login($creds);
 
@@ -127,7 +123,7 @@ function ding_wayf_login($creds) {
 
   // Test that the response was valided.
   if (!is_array($auth_res) || !isset($auth_res['result']) || empty($auth_res['result'])) {
-    drupal_set_message(t('The connection to the library system was lost and you have been logged out.'), 'warning');
+    drupal_set_message(t('You could not be logged into the library system, so you have been logged out of WAYF.'), 'warning');
     watchdog('ding_wayf', 'Provider returned invalid result: @res', array('@res' => print_r($auth_res, TRUE)), WATCHDOG_DEBUG);
     ding_wayf_logout();
     return;
