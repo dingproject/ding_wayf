@@ -1,10 +1,14 @@
 <?php
 
+/**
+ * Provides the ding! WAYF administraion settings form.
+ */
 function ding_wayf_admin_settings_form() {
   $form = array(
     '#tree' => TRUE,
   );
 
+  // Load default values
   $default = variable_get('ding_wayf', array());
 
   $form['ding_wayf']['installdir'] = array(
@@ -19,7 +23,7 @@ function ding_wayf_admin_settings_form() {
     '#type' => 'textfield',
     '#title' => t('Autenticaton source for this SP'),
     '#default_value' => isset($default['sp']) ? $default['sp'] : 'default-sp',
-    '#description' => t('The name of the SP to use from /var/simplesamlphp/config/authsources.php.'),
+    '#description' => t('The name of the service provider (SP) to use from /var/simplesamlphp/config/authsources.php.'),
     '#required' => TRUE,
   );
 
@@ -27,13 +31,13 @@ function ding_wayf_admin_settings_form() {
     '#type' => 'textfield',
     '#title' => t('Which attribute from simpleSAMLphp should be used as to extract credentials'),
     '#default_value' => isset($default['attribute']) ? $default['attribute'] : 'schacPersonalUniqueID',
-    '#description' => t('The name of the information string that contains the credentials.'),
+    '#description' => t('The attribute that contains the credentials.'),
     '#required' => TRUE,
   );
 
   $form['ding_wayf']['attribute_field'] = array(
     '#type' => 'textfield',
-    '#title' => t('Which string should be extracted'),
+    '#title' => t('Which field should be extracted'),
     '#default_value' => isset($default['attribute_field']) ? $default['attribute_field'] : 'CPR',
     '#description' => t('Default the CPR number will be extracted (urn:mace:terena.org:schac:uniqueID:dk:CPR:0708741234).'),
     '#required' => TRUE,
@@ -51,7 +55,7 @@ function ding_wayf_admin_settings_form() {
     '#type' => 'textfield',
     '#title' => t('Redirect fallback URL'),
     '#default_value' => isset($default['redirect']) ? $default['redirect'] : 'user/%uid/status',
-    '#description' => t('Redirect to this URL after login, if before login destination is lost. The token %uid is avaliable'),
+    '#description' => t('Redirect to this URL after login. The token %uid is avaliable'),
     '#required' => TRUE,
   );
 
@@ -64,8 +68,13 @@ function ding_wayf_admin_settings_form() {
   return system_settings_form($form);
 }
 
+/**
+ * Validation function for the administration settings form above.
+ */
 function ding_wayf_admin_settings_form_validate($form, $form_state) {
-  // TODO: Check that simple saml php is found.
-
-  // TODO: Don't update password, if empty.
+  // Check that simple saml php is found at the location given.
+  $path = $form_state['values']['ding_wayf']['installdir'];
+  if (!file_exists($path . '/lib/_autoload.php')) {
+    form_set_error('installdir', t('Simple SAML php was not found at the location given.'));
+  }
 }

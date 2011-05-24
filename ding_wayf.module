@@ -2,10 +2,9 @@
 
 /**
  * @file
- *
- * This authentication module is based on idea's from the simpleSAMLAuth module,
- * which can be found at http://code.google.com/p/drupalsimplesaml/.
- *
+ * This module enables login through WAYF services, which includes NemLogin.This
+ * authentication module is based on idea's from the simpleSAMLAuth module, which
+ * can be found at http://code.google.com/p/drupalsimplesaml/.
  */
 
 /**
@@ -47,19 +46,20 @@ function ding_wayf_menu() {
 
 /**
  * Helper function that handels the login procedure. If the user is not yet
- * authenticated by WAYF - the user will be redirected to login. If the user is
- * authenticated the user will be logged into the drupal site as a library user.
+ * authenticated by WAYF - the user will be redirected to WAYF login. If the
+ * user is authenticated the user will be logged into the drupal site as a
+ * library user.
  *
  * The library system may block the user and he/she will automaticly be logged
  * out of WAYF.
  *
- * After login the user will be redirecte to a preconfigured URL.
- *
+ * If the user is logged into both system, the user will be redirecte to a
+ * preconfigured URL.
  */
 function ding_wayf_redirect_login() {
   global $user;
 
-  // Load configuration
+  // Load configuration.
   $config = variable_get('ding_wayf', NULL);
   if (!$config) {
     // The configuration have not be create yet, so send user to the front page
@@ -71,19 +71,19 @@ function ding_wayf_redirect_login() {
   // Load simple saml php.
   require_once($config['installdir'] . '/lib/_autoload.php');
 
-  // TODO: Test for simple saml php version
 
   // Check if user is already logged in, if not continue with wayf login.
   if ($user->uid == 0) {
-    // Get saml connection.
+    // Get saml connection, using the SP defined by the administrator.
     $saml = ding_wayf_get_saml_connection($config['sp']);
 
-    // User is not logged into drupal, check wayf
+    // User is not logged into drupal, check wayf.
     if ($saml->isAuthenticated()) {
       // The user was logged into WAYF, so try to log into drupal.
       $saml_attributes = $saml->getAttributes();
       if (isset($saml_attributes)) {
         if (isset($saml_attributes[$config['attribute']]) && !empty($saml_attributes[$config['attribute']])) {
+          // Attributes was return from saml.
           $auth_name = ding_wayf_get_credentials($saml_attributes[$config['attribute']], $config['attribute_field']);
           if ($auth_name) {
             $creds = array(
@@ -94,7 +94,8 @@ function ding_wayf_redirect_login() {
         }
       }
 
-      // Login into the drupal site.
+      // Login into the drupal site, if this fails the user will be logout and
+      // redirected to the front page.
       ding_wayf_login($creds);
 
       // Send the user to her/his user page.
@@ -180,6 +181,11 @@ function ding_wayf_login($creds) {
   }
 }
 
+/**
+ * Helper function that redirectes the user to a new location.
+ *
+ * @param string $url
+ */
 function ding_wayf_redirect_user($url) {
   global $user;
   $url = str_replace('%uid', $user->uid, $url);
@@ -217,7 +223,7 @@ function ding_wayf_logout() {
 }
 
 /**
- * Helper function that extract a field for a data string.
+ * Helper function that extract a field from a saml attribute string.
  *
  * @param string $data
  * @param string $field
@@ -238,7 +244,7 @@ function ding_wayf_get_saml_connection($sp) {
 }
 
 /**
- * Implementation of hook_user(). Ensures that the WAYF logout function is call
+ * Implementation of hook_user(). Ensures that the WAYF logout function is called
  * on user logout.
  */
 function ding_wayf_user($op, &$edit, &$account, $category = NULL) {
@@ -248,7 +254,7 @@ function ding_wayf_user($op, &$edit, &$account, $category = NULL) {
 }
 
 /**
- * Implementation of hook_block(). One block is create with the login link to
+ * Implementation of hook_block(). A block is create with the login link to
  * WAYF.
  */
 function ding_wayf_block($op = 'list', $delta = 0, $edit = array()) {
