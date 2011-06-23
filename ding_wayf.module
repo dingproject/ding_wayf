@@ -33,7 +33,7 @@ function ding_wayf_menu() {
   );
 
   // WAYF login callback.
-  $items['wayf'] = array(
+  $items['wayf/login'] = array(
     'title' => t('Logon to the site'),
     'description' => t('Provides WAYF login.'),
     'page callback' => 'ding_wayf_redirect_login',
@@ -269,7 +269,7 @@ function ding_wayf_block($op = 'list', $delta = 0, $edit = array()) {
       if ($user->uid == 0) {
         $config = variable_get('ding_wayf', array());
         if ($config) {
-          $block['content'] = l(t($config['link_text']), 'wayf');
+          $block['content'] = l(t($config['link_text']), 'wayf/login');
         }
       }
       break;
