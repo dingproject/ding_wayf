@@ -278,7 +278,7 @@ function ding_wayf_block($op = 'list', $delta = 0, $edit = array()) {
         $config = variable_get('ding_wayf', array());
         if ($config) {
           // TODO: Add path so users will return to their current context after logging in
-          $block['content'] = l(t($config['link_text']), 'wayf/login');
+          $block['content'] = l(t('Login using WAYF'), 'wayf/login');
         }
       }
       break;

@@ -49,14 +49,6 @@ function ding_wayf_admin_settings_form() {
     '#required' => TRUE,
   );
 
-  $form['ding_wayf']['link_text'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Login link text'),
-    '#default_value' => isset($default['link_text']) ? $default['link_text'] : 'WAYF login',
-    '#description' => t('The text string that will be used to generate WAYF login link.'),
-    '#required' => TRUE,
-  );
-
   $form['ding_wayf']['redirect'] = array(
     '#type' => 'textfield',
     '#title' => t('Redirect fallback URL'),
