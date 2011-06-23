@@ -65,14 +65,14 @@ function ding_wayf_redirect_login() {
     // The configuration have not be created yet, so send user to the front page
     // with an error message.
     drupal_set_message(t('The WAYF login module is not configured yet, plase contact the site administrator.'), 'error', FALSE);
-    // TODO: Add support for destination/redirect argument so users can return to their previous context
-    drupal_goto('<front>');
+
+    // Redirect user to previous context or fallback to the front page.
+    ding_wayf_redirect_user('<front>');
   }
 
   // Load simple saml php.
   require_once($config['installdir'] . '/lib/_autoload.php');
-
-
+  
   // Check if user is already logged in, if not continue with wayf login.
   if ($user->uid == 0) {
     // Get saml connection, using the SP defined by the administrator.
@@ -99,9 +99,7 @@ function ding_wayf_redirect_login() {
       // redirected to the front page.
       ding_wayf_login($creds);
 
-      // Send the user to her/his user page.
-      // TODO: Add support for destination/redirect argument so users can return to their previous context
-      // after authentication.
+      // Send the user back to her context or use the fallback URL.
       ding_wayf_redirect_user($config['redirect']);
       return;
     }
@@ -111,9 +109,7 @@ function ding_wayf_redirect_login() {
     }
   }
 
-  // Send the user to her/his user page.
-  // TODO: Add support for destination/redirect argument so users can return to their previous context
-  // after authentication.
+  // Send the user back to her context or use the fallback URL.
   ding_wayf_redirect_user($config['redirect']);
   return;
 }
@@ -190,13 +186,20 @@ function ding_wayf_login($creds) {
 }
 
 /**
- * Helper function that redirectes the user to a new location.
+ * Helper function that redirectes the user to previous context or the fallback
+ * URL given as parameter.
  *
  * @param string $url
  */
 function ding_wayf_redirect_user($url) {
-  global $user;
-  $url = str_replace('%uid', $user->uid, $url);
+  if ($_REQUEST['destination']) {
+    $url = $_REQUEST['destination'];
+  }
+  else {
+    global $user;
+    $url = str_replace('%uid', $user->uid, $url);
+  }
+
   drupal_goto($url);
 }
 
@@ -278,7 +281,7 @@ function ding_wayf_block($op = 'list', $delta = 0, $edit = array()) {
         $config = variable_get('ding_wayf', array());
         if ($config) {
           // TODO: Add path so users will return to their current context after logging in
-          $block['content'] = l(t('Login using WAYF'), 'wayf/login');
+          $block['content'] = l(t('Login using WAYF'), 'wayf/login', array('query' => drupal_get_destination()));
         }
       }
       break;

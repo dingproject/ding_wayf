@@ -53,7 +53,7 @@ function ding_wayf_admin_settings_form() {
     '#type' => 'textfield',
     '#title' => t('Redirect fallback URL'),
     '#default_value' => $default['redirect'],
-    '#description' => t('Redirect to this URL after login. The token %uid is avaliable'),
+    '#description' => t('Redirect to this fallback URL after login. This URL is only used if distination is not found. The token %uid is avaliable'),
     '#required' => TRUE,
   );
 
