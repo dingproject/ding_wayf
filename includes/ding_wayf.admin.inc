@@ -81,3 +81,15 @@ function ding_wayf_admin_settings_form_validate($form, $form_state) {
     form_set_error('installdir', t('Simple SAML php was not found at the location given.'));
   }
 }
+
+/**
+ * Implementation of hook_requirements().
+ */
+function ding_way_requirements() {
+  $requirements = array();
+  
+  // TODO: Check for ding_wayf variable to ensure that the module has been configured
+  // TODO: Check that SimpleSaml is still available at the configured location
+  
+  return $requirements;
+}
