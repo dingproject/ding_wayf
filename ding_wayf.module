@@ -65,6 +65,7 @@ function ding_wayf_redirect_login() {
     // The configuration have not be create yet, so send user to the front page
     // with an error message.
     drupal_set_message(t('The WAYF login module is not configured yet, plase contact the site administrator.'), 'error', FALSE);
+    // TODO: Add support for destination/redirect argument so users can return to their previous context
     drupal_goto('<front>');
   }
 
@@ -99,6 +100,8 @@ function ding_wayf_redirect_login() {
       ding_wayf_login($creds);
 
       // Send the user to her/his user page.
+      // TODO: Add support for destination/redirect argument so users can return to their previous context
+      // after authentication.
       ding_wayf_redirect_user($config['redirect']);
       return;
     }
@@ -109,6 +112,8 @@ function ding_wayf_redirect_login() {
   }
 
   // Send the user to her/his user page.
+  // TODO: Add support for destination/redirect argument so users can return to their previous context
+  // after authentication.
   ding_wayf_redirect_user($config['redirect']);
   return;
 }
@@ -269,6 +274,7 @@ function ding_wayf_block($op = 'list', $delta = 0, $edit = array()) {
       if ($user->uid == 0) {
         $config = variable_get('ding_wayf', array());
         if ($config) {
+          // TODO: Add path so users will return to their current context after logging in
           $block['content'] = l(t($config['link_text']), 'wayf/login');
         }
       }
