@@ -59,6 +59,9 @@ function ding_wayf_admin_settings_form() {
     '#required' => TRUE,
   );
 
+  // TODO: For security reasons we shouldn't should store a central password to the
+  // library system in the database or make it available using the administration. 
+  // Consider using settings['conf] instead as this should be set only once.
   $form['ding_wayf']['default'] = array(
     '#type' => 'password',
     '#title' => t('Default password'),
