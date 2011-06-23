@@ -33,7 +33,7 @@ function ding_wayf_menu() {
   );
 
   // WAYF login callback.
-  $items['wayf'] = array(
+  $items['wayf/login'] = array(
     'title' => t('Logon to the site'),
     'description' => t('Provides WAYF login.'),
     'page callback' => 'ding_wayf_redirect_login',
@@ -45,7 +45,7 @@ function ding_wayf_menu() {
 }
 
 /**
- * Helper function that handels the login procedure. If the user is not yet
+ * Helper function that handles the login procedure. If the user is not yet
  * authenticated by WAYF - the user will be redirected to WAYF login. If the
  * user is authenticated the user will be logged into the drupal site as a
  * library user.
@@ -62,9 +62,10 @@ function ding_wayf_redirect_login() {
   // Load configuration.
   $config = variable_get('ding_wayf', NULL);
   if (!$config) {
-    // The configuration have not be create yet, so send user to the front page
+    // The configuration have not be created yet, so send user to the front page
     // with an error message.
     drupal_set_message(t('The WAYF login module is not configured yet, plase contact the site administrator.'), 'error', FALSE);
+    // TODO: Add support for destination/redirect argument so users can return to their previous context
     drupal_goto('<front>');
   }
 
@@ -99,6 +100,8 @@ function ding_wayf_redirect_login() {
       ding_wayf_login($creds);
 
       // Send the user to her/his user page.
+      // TODO: Add support for destination/redirect argument so users can return to their previous context
+      // after authentication.
       ding_wayf_redirect_user($config['redirect']);
       return;
     }
@@ -109,6 +112,8 @@ function ding_wayf_redirect_login() {
   }
 
   // Send the user to her/his user page.
+  // TODO: Add support for destination/redirect argument so users can return to their previous context
+  // after authentication.
   ding_wayf_redirect_user($config['redirect']);
   return;
 }
@@ -130,6 +135,9 @@ function ding_wayf_login($creds) {
     return;
   }
 
+  // TODO: Code seems to be a copy/paste of ding_library_user_user_login_validate
+  // and https://github.com/dingproject/ding-borger-api/blob/master/ding_borger_api/ding_borger_api.module#L64.
+  // We should refactor this at some point.
   if ($auth_res['result']) {
     if (isset($auth_res['authname']) && !empty($auth_res['authname'])) {
       // If provider supplied an authname, use it.
@@ -137,7 +145,7 @@ function ding_wayf_login($creds) {
     }
     else {
       // Else use a standard authname.
-      $auth_name = ding_library_user_default_authname('test hack test');
+      $auth_name = ding_library_user_default_authname($creds['name']);
     }
 
     // This sets the proper global $user.
@@ -223,7 +231,7 @@ function ding_wayf_logout() {
 }
 
 /**
- * Helper function that extract a field from a saml attribute string.
+ * Helper function that extracts a field from a saml attribute string.
  *
  * @param string $data
  * @param string $field
@@ -254,7 +262,7 @@ function ding_wayf_user($op, &$edit, &$account, $category = NULL) {
 }
 
 /**
- * Implementation of hook_block(). A block is create with the login link to
+ * Implementation of hook_block(). A block is created with the login link to
  * WAYF.
  */
 function ding_wayf_block($op = 'list', $delta = 0, $edit = array()) {
@@ -269,7 +277,8 @@ function ding_wayf_block($op = 'list', $delta = 0, $edit = array()) {
       if ($user->uid == 0) {
         $config = variable_get('ding_wayf', array());
         if ($config) {
-          $block['content'] = l(t($config['link_text']), 'wayf');
+          // TODO: Add path so users will return to their current context after logging in
+          $block['content'] = l(t('Login using WAYF'), 'wayf/login');
         }
       }
       break;
