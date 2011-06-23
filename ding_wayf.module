@@ -135,6 +135,9 @@ function ding_wayf_login($creds) {
     return;
   }
 
+  // TODO: Code seems to be a copy/paste of ding_library_user_user_login_validate
+  // and https://github.com/dingproject/ding-borger-api/blob/master/ding_borger_api/ding_borger_api.module#L64.
+  // We should refactor this at some point.
   if ($auth_res['result']) {
     if (isset($auth_res['authname']) && !empty($auth_res['authname'])) {
       // If provider supplied an authname, use it.
