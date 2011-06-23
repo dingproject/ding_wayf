@@ -44,8 +44,8 @@ function ding_wayf_admin_settings_form() {
   $form['ding_wayf']['attribute_field'] = array(
     '#type' => 'textfield',
     '#title' => t('Which field should be extracted'),
-    '#description' => t('Default the CPR number will be extracted (urn:mace:terena.org:schac:uniqueID:dk:CPR:0708741234).'),
     '#default_value' => $default['attribute_field'],
+    '#description' => t('By default the CPR number will be extracted (urn:mace:terena.org:schac:uniqueID:dk:CPR:0708741234).'),
     '#required' => TRUE,
   );
 

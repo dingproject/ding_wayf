@@ -45,7 +45,7 @@ function ding_wayf_menu() {
 }
 
 /**
- * Helper function that handels the login procedure. If the user is not yet
+ * Helper function that handles the login procedure. If the user is not yet
  * authenticated by WAYF - the user will be redirected to WAYF login. If the
  * user is authenticated the user will be logged into the drupal site as a
  * library user.
@@ -62,7 +62,7 @@ function ding_wayf_redirect_login() {
   // Load configuration.
   $config = variable_get('ding_wayf', NULL);
   if (!$config) {
-    // The configuration have not be create yet, so send user to the front page
+    // The configuration have not be created yet, so send user to the front page
     // with an error message.
     drupal_set_message(t('The WAYF login module is not configured yet, plase contact the site administrator.'), 'error', FALSE);
     // TODO: Add support for destination/redirect argument so users can return to their previous context
@@ -231,7 +231,7 @@ function ding_wayf_logout() {
 }
 
 /**
- * Helper function that extract a field from a saml attribute string.
+ * Helper function that extracts a field from a saml attribute string.
  *
  * @param string $data
  * @param string $field
@@ -262,7 +262,7 @@ function ding_wayf_user($op, &$edit, &$account, $category = NULL) {
 }
 
 /**
- * Implementation of hook_block(). A block is create with the login link to
+ * Implementation of hook_block(). A block is created with the login link to
  * WAYF.
  */
 function ding_wayf_block($op = 'list', $delta = 0, $edit = array()) {
