@@ -142,7 +142,7 @@ function ding_wayf_login($creds) {
     }
     else {
       // Else use a standard authname.
-      $auth_name = ding_library_user_default_authname('test hack test');
+      $auth_name = ding_library_user_default_authname($creds['name']);
     }
 
     // This sets the proper global $user.
