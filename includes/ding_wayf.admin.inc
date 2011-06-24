@@ -10,11 +10,10 @@ function ding_wayf_admin_settings_form() {
 
   // Load default values
   $default = variable_get('ding_wayf', array(
-      'installdir' => '/var/simplesamlphp',
-      'attribute' => 'schacPersonalUniqueID',
-      'attribute_field' => 'CPR',
-      'redirect' => 'user/%uid/status',
-      
+    'installdir' => '/var/simplesamlphp',
+    'attribute' => 'schacPersonalUniqueID',
+    'attribute_field' => 'CPR',
+    'redirect' => 'user/%uid/status',
   ));
 
   $form['ding_wayf']['installdir'] = array(
