@@ -279,11 +279,7 @@ function ding_wayf_block($op = 'list', $delta = 0, $edit = array()) {
       global $user;
       // Only show login link for anon. users.
       if ($user->uid == 0) {
-        $config = variable_get('ding_wayf', array());
-        if ($config) {
-          // TODO: Add path so users will return to their current context after logging in
-          $block['content'] = l(t('Login using WAYF'), 'wayf/login', array('query' => drupal_get_destination()));
-        }
+        $block['content'] = l(t('Login using WAYF'), 'wayf/login', array('query' => drupal_get_destination()));
       }
       break;
   }
