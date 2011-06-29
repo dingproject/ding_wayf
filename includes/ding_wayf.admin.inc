@@ -63,9 +63,8 @@ function ding_wayf_admin_settings_form() {
  * Validation function for the administration settings form above.
  */
 function ding_wayf_admin_settings_form_validate($form, $form_state) {
-  // Check that simple saml php is found at the location given.
-  $path = $form_state['values']['ding_wayf']['installdir'];
-  if (!file_exists($path . '/lib/_autoload.php')) {
+  // Check that simpleSAMLphp is found at the location given.
+  if (!ding_wayf_check_simplesamlphp($form_state['values']['ding_wayf']['installdir'])) {
     form_set_error('installdir', t('Simple SAML php was not found at the location given.'));
   }
 }

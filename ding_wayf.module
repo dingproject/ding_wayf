@@ -285,3 +285,15 @@ function ding_wayf_block($op = 'list', $delta = 0, $edit = array()) {
   }
   return $block;
 }
+
+/**
+ * Check that simpleSAMLphp is installed at the location given.
+ */
+function ding_wayf_check_simplesamlphp($path) {
+  // Check that simple saml php is found at the location given.
+  if (!file_exists($path . '/lib/_autoload.php')) {
+    return FALSE;
+  }
+
+  return TRUE;
+}
