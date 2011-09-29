@@ -14,6 +14,7 @@ function ding_wayf_admin_settings_form() {
     'attribute' => 'schacPersonalUniqueID',
     'attribute_field' => 'CPR',
     'redirect' => 'user/%uid/status',
+    'no_library_user' => '/',
   ));
 
   $form['ding_wayf']['installdir'] = array(
@@ -53,6 +54,14 @@ function ding_wayf_admin_settings_form() {
     '#title' => t('Redirect fallback URL'),
     '#default_value' => $default['redirect'],
     '#description' => t('Redirect to this fallback URL after login. This URL is only used if distination is not found. The token %uid is avaliable'),
+    '#required' => TRUE,
+  );
+
+  $form['ding_wayf']['no_library_user'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Redirect URL if library login fails'),
+    '#default_value' => $default['no_library_user'],
+    '#description' => t('Redirect to this URL if the library login fails. This is need as Drupal messages will not be shown after redirects into simple SAML. It could be a static page about WAYF and why the user maybe could not be logged in.'),
     '#required' => TRUE,
   );
 

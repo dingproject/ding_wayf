@@ -128,7 +128,7 @@ function ding_wayf_login($creds) {
   if (!is_array($auth_res) || !isset($auth_res['result']) || empty($auth_res['result'])) {
     drupal_set_message(t('You could not be logged into the library system, so you have been logged out of WAYF.'), 'warning');
     watchdog('ding_wayf', 'Provider returned invalid result: @res', array('@res' => print_r($auth_res, TRUE)), WATCHDOG_DEBUG);
-    ding_wayf_logout();
+    ding_wayf_logout(FALSE);
     return;
   }
 
@@ -182,7 +182,7 @@ function ding_wayf_login($creds) {
     }
     // We need to logout of wayf at this point, as we never got logged into the
     // drupal site.
-    ding_wayf_logout();
+    ding_wayf_logout(FALSE);
   }
 }
 
@@ -206,8 +206,11 @@ function ding_wayf_redirect_user($url) {
 
 /**
  * Helper function that logs the current user out from WAYF.
+ *
+ * @param boolean $logged_in_library
+ *  Indicates if the user have been logged into the library system.
  */
-function ding_wayf_logout() {
+function ding_wayf_logout($logged_in_library = TRUE) {
   $config = variable_get('ding_wayf', array());
   if (empty($config)) {
     // No configuration found, so user can't be logged in with wayf.
@@ -222,7 +225,14 @@ function ding_wayf_logout() {
 
   // Check if the user is logged into WAYF and log out the user.
   if ($saml->isAuthenticated()) {
-    $saml->logout();
+    $url = $config['no_library_user'];
+    if ($logged_in_library) {
+      $url = '/logout';
+    }
+    // This function dose not return and will terminate the normal logout
+    // process. But it can perform a redirect to a URL, which will be /logout
+    // hence restart the drupal logout process.
+    $saml->logout($url);
   }
 }
 
