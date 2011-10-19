@@ -41,6 +41,13 @@ function ding_wayf_menu() {
     'type' => MENU_CALLBACK,
   );
 
+  $items['wayf/error'] = array(
+    'title' => t('WAYF login was unsuccessful'),
+    'description' => t('Message displayed when WAYF login fails.'),
+    'page callback' => 'ding_wayf_login_error',
+    'access callback' => TRUE,
+  );
+
   return $items;
 }
 
@@ -298,4 +305,29 @@ function ding_wayf_check_simplesamlphp($path) {
   }
 
   return TRUE;
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function ding_wayf_theme() {
+  return array(
+    'ding_wayf_error_page' => array(
+      'template' => 'templates/ding-wayf-error-page',
+      'arguments' => array('headline' => NULL, 'content' => NULL),
+    ),
+  );
+}
+
+/**
+ * Menu callback that displayes a default error message. It will be used if the
+ * administrator have not created another error page in the administration
+ * interface for ding wayf.
+ *
+ * @return string
+ */
+function ding_wayf_login_error() {
+  return theme('ding_wayf_error_page',
+               'Your attempt to login with nem-id was unsuccessful',
+               'This may be because you are not registered as a borrower, or because we do not have your Social Security number in the library system.');
 }
