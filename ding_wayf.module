@@ -41,6 +41,13 @@ function ding_wayf_menu() {
     'type' => MENU_CALLBACK,
   );
 
+  $items['wayf/error'] = array(
+    'title' => t('WAYF login was unsuccessful'),
+    'description' => t('Message displayed when WAYF login fails.'),
+    'page callback' => 'ding_wayf_login_error',
+    'access callback' => TRUE,
+  );
+
   return $items;
 }
 
@@ -128,7 +135,7 @@ function ding_wayf_login($creds) {
   if (!is_array($auth_res) || !isset($auth_res['result']) || empty($auth_res['result'])) {
     drupal_set_message(t('You could not be logged into the library system, so you have been logged out of WAYF.'), 'warning');
     watchdog('ding_wayf', 'Provider returned invalid result: @res', array('@res' => print_r($auth_res, TRUE)), WATCHDOG_DEBUG);
-    ding_wayf_logout();
+    ding_wayf_logout(FALSE);
     return;
   }
 
@@ -182,7 +189,7 @@ function ding_wayf_login($creds) {
     }
     // We need to logout of wayf at this point, as we never got logged into the
     // drupal site.
-    ding_wayf_logout();
+    ding_wayf_logout(FALSE);
   }
 }
 
@@ -206,8 +213,11 @@ function ding_wayf_redirect_user($url) {
 
 /**
  * Helper function that logs the current user out from WAYF.
+ *
+ * @param boolean $logged_in_library
+ *  Indicates if the user have been logged into the library system.
  */
-function ding_wayf_logout() {
+function ding_wayf_logout($logged_in_library = TRUE) {
   $config = variable_get('ding_wayf', array());
   if (empty($config)) {
     // No configuration found, so user can't be logged in with wayf.
@@ -222,15 +232,14 @@ function ding_wayf_logout() {
 
   // Check if the user is logged into WAYF and log out the user.
   if ($saml->isAuthenticated()) {
-    $config = SimpleSAML_Configuration::getInstance();
-    $msg = 'with_slo';
-
-    try {
-      $slo = $config->getString('SingleLogoutService');
-    } catch (Exception $e) {
-      $msg = "no_slo";
+    $url = $config['no_library_user'];
+    if ($logged_in_library) {
+      $url = '/logout';
     }
-    $saml->logout('/?msg=' . $msg);
+    // This function dose not return and will terminate the normal logout
+    // process. But it can perform a redirect to a URL, which will be /logout
+    // hence restart the drupal logout process.
+    $saml->logout($url);
   }
 }
 
@@ -296,4 +305,29 @@ function ding_wayf_check_simplesamlphp($path) {
   }
 
   return TRUE;
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function ding_wayf_theme() {
+  return array(
+    'ding_wayf_error_page' => array(
+      'template' => 'templates/ding-wayf-error-page',
+      'arguments' => array('headline' => NULL, 'content' => NULL),
+    ),
+  );
+}
+
+/**
+ * Menu callback that displayes a default error message. It will be used if the
+ * administrator have not created another error page in the administration
+ * interface for ding wayf.
+ *
+ * @return string
+ */
+function ding_wayf_login_error() {
+  return theme('ding_wayf_error_page',
+               t('Your attempt to login with nem-id was unsuccessful'),
+               t('This may be because you are not registered as a borrower, or because we do not have your Social Security number in the library system.'));
 }
