@@ -328,6 +328,6 @@ function ding_wayf_theme() {
  */
 function ding_wayf_login_error() {
   return theme('ding_wayf_error_page',
-               'Your attempt to login with nem-id was unsuccessful',
-               'This may be because you are not registered as a borrower, or because we do not have your Social Security number in the library system.');
+               t('Your attempt to login with nem-id was unsuccessful'),
+               t('This may be because you are not registered as a borrower, or because we do not have your Social Security number in the library system.'));
 }
