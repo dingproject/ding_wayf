@@ -281,7 +281,10 @@ function ding_wayf_user($op, &$edit, &$account, $category = NULL) {
 function ding_wayf_block($op = 'list', $delta = 0, $edit = array()) {
   switch ($op) {
     case 'list':
-      $block[0] = array('info' => 'WAYF login block');
+      $block[0] = array(
+        'info' => t('WAYF login block'),
+        'cache' => BLOCK_NO_CACHE,
+      );
       break;
 
     case 'view':
