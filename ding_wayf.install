@@ -52,3 +52,13 @@ function ding_wayf_requirements($phase) {
   
   return $requirements;
 }
+
+/**
+ * Disable block cache for the WAYF BLOCK.
+ */
+function ding_wayf_update_6001() {
+  $ret = array();
+  $query = "UPDATE blocks SET cache = -1 WHERE module = 'ding_wayf'";
+  $ret[] = db_query($query);
+  return $ret;
+}
